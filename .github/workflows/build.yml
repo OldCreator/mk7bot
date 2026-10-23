@@ -28,21 +28,12 @@ jobs:
         run: |
           export PATH=$PATH:/opt/devkitpro/devkitARM/bin:/opt/devkitpro/tools/bin
           dkp-pacman -S --noconfirm --needed 3ds-dev || true
-          D=/opt/devkitpro/libctrpf
-          git clone --depth 1 https://github.com/PabloMK7/CTRPluginFramework.git ctrpf
-          echo "=== repo layout ==="
-          ls ctrpf
-          find ctrpf -name CTRPluginFramework.hpp
-          (make -C ctrpf/Library 2>&1 || make -C ctrpf 2>&1) | tail -n 25 || true
-          find ctrpf -name '*.a'
-          H=$(dirname "$(find ctrpf -name CTRPluginFramework.hpp | head -n1)")
-          L=$(find ctrpf -name 'libctrpf.a' | head -n1)
-          echo "headers=$H lib=$L"
-          mkdir -p $D/include $D/lib
-          cp -r "$H"/* $D/include/
-          cp "$L" $D/lib/
-          export CTRPFLIB=$D
+          printf '\n[thepixellizeross-lib]\nServer = https://thepixellizeross.gitlab.io/packages/any\nSigLevel = Optional\n\n[thepixellizeross-linux]\nServer = https://thepixellizeross.gitlab.io/packages/x86_64/linux\nSigLevel = Optional\n' >> /opt/devkitpro/pacman/etc/pacman.conf
+          dkp-pacman -Sy
+          dkp-pacman -S --noconfirm libctrpf
+          ls /opt/devkitpro/libctrpf
           git clone --depth 1 https://github.com/PabloMK7/CTRPluginFramework-BlankTemplate.git tpl
+          ls tpl tpl/Sources
           rm -f tpl/Sources/*.cpp
           cp plugin.cpp tpl/Sources/main.cpp
           cd tpl && make

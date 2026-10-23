@@ -10,8 +10,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build manager app
         run: |
-          dkp-pacman -S --noconfirm --needed 3ds-dev || true
           export PATH=$PATH:/opt/devkitpro/devkitARM/bin:/opt/devkitpro/tools/bin
+          dkp-pacman -S --noconfirm --needed 3ds-dev || true
           cd manager
           arm-none-eabi-gcc -D__3DS__ -O2 -march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft -I${DEVKITPRO}/libctru/include main.c -specs=3dsx.specs -L${DEVKITPRO}/libctru/lib -lctru -lm -o mk7bot_manager.elf
           3dsxtool mk7bot_manager.elf mk7bot_manager.3dsx
@@ -26,9 +26,22 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build plugin
         run: |
-          which git || dkp-pacman -S --noconfirm git
-          dkp-pacman -S --noconfirm --needed 3ds-dev || true
           export PATH=$PATH:/opt/devkitpro/devkitARM/bin:/opt/devkitpro/tools/bin
+          dkp-pacman -S --noconfirm --needed 3ds-dev || true
+          D=/opt/devkitpro/libctrpf
+          git clone --depth 1 https://github.com/PabloMK7/CTRPluginFramework.git ctrpf
+          echo "=== repo layout ==="
+          ls ctrpf
+          find ctrpf -name CTRPluginFramework.hpp
+          (make -C ctrpf/Library 2>&1 || make -C ctrpf 2>&1) | tail -n 25 || true
+          find ctrpf -name '*.a'
+          H=$(dirname "$(find ctrpf -name CTRPluginFramework.hpp | head -n1)")
+          L=$(find ctrpf -name 'libctrpf.a' | head -n1)
+          echo "headers=$H lib=$L"
+          mkdir -p $D/include $D/lib
+          cp -r "$H"/* $D/include/
+          cp "$L" $D/lib/
+          export CTRPFLIB=$D
           git clone --depth 1 https://github.com/PabloMK7/CTRPluginFramework-BlankTemplate.git tpl
           rm -f tpl/Sources/*.cpp
           cp plugin.cpp tpl/Sources/main.cpp

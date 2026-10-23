@@ -11,6 +11,7 @@ jobs:
       - name: Build manager app
         run: |
           dkp-pacman -S --noconfirm --needed 3ds-dev || true
+          export PATH=$PATH:/opt/devkitpro/devkitARM/bin:/opt/devkitpro/tools/bin
           cd manager
           arm-none-eabi-gcc -D__3DS__ -O2 -march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft -I${DEVKITPRO}/libctru/include main.c -specs=3dsx.specs -L${DEVKITPRO}/libctru/lib -lctru -lm -o mk7bot_manager.elf
           3dsxtool mk7bot_manager.elf mk7bot_manager.3dsx
@@ -27,6 +28,7 @@ jobs:
         run: |
           which git || dkp-pacman -S --noconfirm git
           dkp-pacman -S --noconfirm --needed 3ds-dev || true
+          export PATH=$PATH:/opt/devkitpro/devkitARM/bin:/opt/devkitpro/tools/bin
           git clone --depth 1 https://github.com/PabloMK7/CTRPluginFramework-BlankTemplate.git tpl
           rm -f tpl/Sources/*.cpp
           cp plugin.cpp tpl/Sources/main.cpp

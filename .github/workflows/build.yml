@@ -1,0 +1,38 @@
+name: Build 3DS files
+on:
+  workflow_dispatch:
+  push:
+jobs:
+  manager:
+    runs-on: ubuntu-latest
+    container: devkitpro/devkitarm:latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build manager app
+        run: |
+          dkp-pacman -S --noconfirm --needed 3ds-dev || true
+          cd manager
+          arm-none-eabi-gcc -D__3DS__ -O2 -march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft -I${DEVKITPRO}/libctru/include main.c -specs=3dsx.specs -L${DEVKITPRO}/libctru/lib -lctru -lm -o mk7bot_manager.elf
+          3dsxtool mk7bot_manager.elf mk7bot_manager.3dsx
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mk7bot_manager
+          path: manager/mk7bot_manager.3dsx
+  plugin:
+    runs-on: ubuntu-latest
+    container: devkitpro/devkitarm:latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build plugin
+        run: |
+          which git || dkp-pacman -S --noconfirm git
+          dkp-pacman -S --noconfirm --needed 3ds-dev || true
+          git clone --depth 1 https://github.com/PabloMK7/CTRPluginFramework-BlankTemplate.git tpl
+          rm -f tpl/Sources/*.cpp
+          cp plugin.cpp tpl/Sources/main.cpp
+          cd tpl && make
+          cp *.3gx ../MK7Bot.3gx
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MK7Bot_plugin
+          path: MK7Bot.3gx

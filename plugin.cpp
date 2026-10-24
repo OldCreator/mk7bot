@@ -419,7 +419,7 @@ static void RecordTick()
 }
 
 // ---------- overlay ----------
-static bool Overlay(const Screen &s)
+static bool BotOverlay(const Screen &s)
 {
     const std::vector<Vec2> &P = (g_mode == M_FOLLOW || g_line.size() < 2) ? g_trail : g_line;
     if (s.IsTop || P.size() < 2) return true;
@@ -444,7 +444,7 @@ static bool Overlay(const Screen &s)
 }
 
 // ---------- menu ----------
-static void Frame() { if (g_rec) RecordTick(); BotTick(); }
+static void BotFrame() { if (g_rec) RecordTick(); BotTick(); }
 static void OnBot(MenuEntry *)
 {
     g_botOn = !g_botOn;
@@ -485,8 +485,8 @@ int main()
     m->Append(new MenuEntry("Neural policy on/off", nullptr, OnPol));
     m->Append(new MenuEntry("Forget this track", nullptr, OnForget));
     m->Append(new MenuEntry("Manual line record (fallback)", nullptr, OnRec));
-    m->Callback(Frame);
-    OSD::Run(Overlay);
+    m->Callback(BotFrame);
+    OSD::Run(BotOverlay);
     m->Run();
     delete m;
     return 0;

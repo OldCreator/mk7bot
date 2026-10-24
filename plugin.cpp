@@ -471,7 +471,9 @@ static void OnRec(MenuEntry *)
     else { RebuildFromRaw(g_trail); SaveLine(); g_trail.clear(); }
 }
 
+namespace CTRPluginFramework {
 void PatchProcess(FwkSettings &) {}
+void OnProcessExit(void) {}
 int main()
 {
     SetupItems();
@@ -488,4 +490,5 @@ int main()
     m->Run();
     delete m;
     return 0;
+}
 }
